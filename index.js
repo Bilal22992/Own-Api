@@ -1,7 +1,7 @@
 import bodyParser from "body-parser";
 import express from "express";
 
-
+const key ="12345";
 const app = express();
  app.use(bodyParser.urlencoded({extended:true}))
 app.listen(3000,()=>{
@@ -36,8 +36,65 @@ app.get("/filter",(req,res)=>{
     res.json(jokesfilter);
 })
 
+app.post("/jokes",(req,res)=>{
+    const text = req.body.text;
+    const type = req.body.type;
+    let lastElement = jokes[jokes.length - 1];
+    const newid = lastElement.id+1;
+    console.log(newid);
+    const newjoke = {id:newid,jokeText:text,jokeType:type}
+    jokes.push(newjoke);
+    res.send("success");
+})
+
+app.put("/jokes/:id",(req,res)=>{
+    const identity =parseInt(req.params.id);
+    const text= req.body.text;
+    const type=req.body.type;
+    const findjoke= jokes.findIndex(joke => joke.id===identity);
+    jokes.pop(findjoke)
+    jokes[findjoke]={id:identity,jokeText:text,jokeType:type};
+    
+    res.json(jokes[findjoke]);
+    console.log(jokes[findjoke]);
+
+})
+
+app.patch("/jokes/:id",(req,res)=>{
+    const identity =parseInt(req.params.id);
+    const findjokeindex = jokes.findIndex(joke => joke.id=identity);
+    const findjoke = jokes.find(joke => joke.id=identity);
+    console.log(findjoke);
+    if(req.body.type){
+        const type= req.body.type;
+        findjoke.jokeType=type;
+        jokes[findjokeindex]=findjoke;
+res.json(findjoke);
+    }
+    else if(req.body.text){
+        const text= req.body.text;
+        findjoke.jokeText=text;
+        jokes[findjokeindex]=findjoke;
+res.json(findjoke);
+    }
+})
 
 
+app.delete("/jokes/:id",(req,res)=>{
+    const identity =parseInt(req.params.id);
+    const findjokeindex = jokes.findIndex(joke => joke.id = identity);
+    jokes.splice(findjokeindex,1);
+    res.json("ok");
+})
+
+app.delete("/all",(req,res)=>{
+const match = req.headers.key;
+if(match==key){
+    jokes.length=0;
+    res.send(jokes);
+}
+console.log(match);
+})
 var jokes = [
     {
       id: 1,
